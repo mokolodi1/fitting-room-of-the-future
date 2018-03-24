@@ -7,19 +7,11 @@ Template.home.onCreated(function () {
 
 // Template.productDetail
 
-Template.productDetail.onCreated(function () {
-  let instance = this;
-
-  instance.transcript = new ReactiveVar("");
-  instance.transcriptFinalized = new ReactiveVar(false);
-  instance.listening = new ReactiveVar(false);
-  instance.recastResult = new ReactiveVar(null);
-  instance.language = new ReactiveVar("English");
-
-  // https://github.com/ArnaudGallardo/transcripter/blob/d231930043b9bdb603bc41b29cfcc2e3fbedf2c5/transcripter/client/room.js
-  instance.recognition = new webkitSpeechRecognition();
+function setupRecognition(instance, language) {
   instance.recognition.continuous = true;
   instance.recognition.interimResults = true;
+
+  instance.recognition.lang = language === "English" ? "en" : "fr";
 
   instance.recognition.onresult = function (event) {
     for (var i = event.resultIndex; i < event.results.length; ++i) {
@@ -30,10 +22,13 @@ Template.productDetail.onCreated(function () {
       instance.transcript.set(transcript);
 
       if (result.isFinal) {
-        Meteor.call("getRecastIntent", transcript, instance.language.get(),
+        Meteor.call("getRecastIntent", transcript, language,
             (error, result) => {
           console.log("result:", result);
-          instance.recastResult.set(result);
+
+          if (result.intent.confidence > .8) {
+            instance.recastResult.set(result);
+          }
         });
       }
     }
@@ -41,24 +36,40 @@ Template.productDetail.onCreated(function () {
   instance.recognition.onerror = function(event) {
     console.log('error', event);
   };
+}
+
+Template.productDetail.onCreated(function () {
+  let instance = this;
+
+  instance.transcript = new ReactiveVar("");
+  instance.transcriptFinalized = new ReactiveVar(false);
+  instance.listening = new ReactiveVar(false);
+  instance.recastResult = new ReactiveVar(null);
+  instance.language = new ReactiveVar("English");
+
+  // handle if language is changed
+  let lastLanguage;
+  instance.autorun(() => {
+    let currentLanguage = instance.language.get();
+
+    if (currentLanguage !== lastLanguage) {
+      lastLanguage = currentLanguage;
+
+      if (instance.recognition) {
+        instance.recognition.stop();
+      }
+
+      // https://github.com/ArnaudGallardo/transcripter/blob/d231930043b9bdb603bc41b29cfcc2e3fbedf2c5/transcripter/client/room.js
+      instance.recognition = new webkitSpeechRecognition();
+      setupRecognition(instance, currentLanguage);
+    }
+  });
 
   instance.autorun(() => {
     if (instance.listening.get()) {
       instance.recognition.start();
     } else {
       instance.recognition.stop();
-    }
-  });
-
-  instance.autorun(() => {
-    instance.recognition.lang =
-        instance.language.get() === "English" ? "en" : "fr";
-
-    if (instance.listening.get()) {
-      instance.recognition.stop();
-      Meteor.setTimeout(() => {
-        instance.recognition.start();
-      }, 1000);
     }
   });
 });
@@ -97,11 +108,8 @@ Template.productDetail.helpers({
 
     if (!result || !result.intent) return false;
 
-    return [
-      "greetings",
-      "ask-color-question",
-      "change-shirt-color",
-    ].indexOf(result.intent.slug) !== -1;
+    // forget why I have this check
+    return result.intent.slug.length > 0;
   },
   getRecastResult() {
     return Template.instance().recastResult.get();

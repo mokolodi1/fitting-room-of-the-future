@@ -52,20 +52,21 @@
         </h4>
         <p>You say things such as:</p>
         <ul>
-          <li>"Does this shirt go with any pants?"</li>
-          <li>"I have a suggestion for the designer"</li>
-          <li>"Share a photo of me"</li>
-          <li>"Tell me about how this shirt was made"</li>
+          <li>Was this shirt ethically made?</li>
+          <li>Does this shirt go with any pants?</li>
+          <li>How would this shirt look in red?</li>
+          <li>Take a picture of me</li>
+          <li>I wish something was different...</li>
         </ul>
         <hr>
 
         {{#if getTranscript}}
-          <h3 style="color:
+          <p style="color:
               {{#if getTranscriptFinalized}}black{{else}}blue{{/if}};">
-            "{{getTranscript}}"
-          </h3>
+            You said: {{getTranscript}}
+          </p>
         {{else}}
-          <h3>Say something to begin...</h3>
+          <p>Say something to begin...</p>
         {{/if}}
 
         {{#if recastSlugKnown}}
@@ -74,12 +75,42 @@
           {{/if}}
 
           {{#if recastSlugIs "ask-color-question"}}
-            <h4>Yes, it does!</h4>
-            <p>To change the color, just ask!</p>
+            <h4>We can totally change the color!</h4>
+            <p>Which color would you like to change it to?</p>
           {{/if}}
 
           {{#if recastSlugIs "change-shirt-color"}}
             <h4>You're looking great in that {{recastColor}} shirt!</h4>
+          {{/if}}
+
+          {{#if recastSlugIs "recommend-with"}}
+            <h4>That shirt would go great with these jeans:</h4>
+            <img src="http://localhost:3000/some_jeans.jpeg" alt="">
+          {{/if}}
+
+          {{#if recastSlugIs "compliment-me"}}
+            <h4>Wow! You're looking great, as usual!</h4>
+            <p>
+              Really though you should really buy that. Cha chiiing.
+            </p>
+          {{/if}}
+
+          {{#if recastSlugIs "provenance-information"}}
+            <h4>Glad you asked!</h4>
+            <p>
+              The shirt you're wearing was made with coton sourced from
+              fairtrade farms in Western Africa (Burkino Faso to be specific).
+            </p>
+            <p>
+              The farms adhere to standards designed to protect the
+              environment, including sourcing water sustainably and
+              reducing water use over time, not using GMOs, and not using
+              hazardous chemical fertilizers and pesticides.
+            </p>
+            <p>
+              The all-natural dyes used were created with no animal testing
+              and are vegan and gluten free!
+            </p>
           {{/if}}
         {{else}}
           {{#if getRecastResult}}
