@@ -1,0 +1,14 @@
+{
+  "name": "webapp",
+  "private": true,
+  "scripts": {
+    "start": "meteor run"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.0.0-beta.36",
+    "emitter": "0.0.5",
+    "fibers": "^2.0.2",
+    "meteor-node-stubs": "^0.3.2",
+    "recastai": "^3.7.0"
+  }
+}

@@ -1,0 +1,92 @@
+<head>
+  <title>Fitting Room of the Future</title>
+</head>
+
+<body>
+
+</body>
+
+<template name="appBody">
+  {{> Template.dynamic template=content data=params}}
+</template>
+
+<template name="home">
+  <h1 style="text-align: center;">Fitting Room of the</h1>
+  <h1 style="text-align: center;">FUTURE</h1>
+  <p style="text-align: center;">Scan an item to begin...</p>
+</template>
+
+<template name="productDetail">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-6">
+        <h1>Video from webcam</h1>
+      </div>
+      <div class="col-sm-6">
+        <h4>Red tshirt</h4>
+        <hr>
+
+        <h4>
+          How can I help?
+
+          <div class="btn-group pull-right">
+            <button type="button" class="toggle-listening btn
+                  btn-{{#if isListening}}success{{else}}default{{/if}}">
+              {{#if isListening}}
+                Listening in {{getLanguage}}
+              {{else}}
+                Not listening
+              {{/if}}
+            </button>
+            <button type="button" class="dropdown-toggle btn
+                  btn-{{#if isListening}}success{{else}}default{{/if}}"
+                data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false">
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li class="select-english"><a href="">English</a></li>
+              <li class="select-french"><a href="">French</a></li>
+            </ul>
+          </div>
+        </h4>
+        <p>You say things such as:</p>
+        <ul>
+          <li>"Does this shirt go with any pants?"</li>
+          <li>"I have a suggestion for the designer"</li>
+          <li>"Share a photo of me"</li>
+          <li>"Tell me about how this shirt was made"</li>
+        </ul>
+        <hr>
+
+        {{#if getTranscript}}
+          <h3 style="color:
+              {{#if getTranscriptFinalized}}black{{else}}blue{{/if}};">
+            "{{getTranscript}}"
+          </h3>
+        {{else}}
+          <h3>Say something to begin...</h3>
+        {{/if}}
+
+        {{#if recastSlugKnown}}
+          {{#if recastSlugIs "greetings"}}
+            <h4>Hello there!</h4>
+          {{/if}}
+
+          {{#if recastSlugIs "ask-color-question"}}
+            <h4>Yes, it does!</h4>
+            <p>To change the color, just ask!</p>
+          {{/if}}
+
+          {{#if recastSlugIs "change-shirt-color"}}
+            <h4>You're looking great in that {{recastColor}} shirt!</h4>
+          {{/if}}
+        {{else}}
+          {{#if getRecastResult}}
+            <p>Hmm, didn't quite catch that...</p>
+          {{/if}}
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</template>
