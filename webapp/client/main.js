@@ -32,12 +32,17 @@ function setupRecognition(instance, language) {
           if (result.intent.confidence > .6) {
             instance.recastResult.set(result);
 
-             $.ajax({
-               type : "POST",
-               url : "http://localhost:5000/load_ajax",
-               data: JSON.stringify(data, null, '\t'),
-               contentType: 'application/json;charset=UTF-8',
-             });
+            let thing = "";
+            if (result.intent &&
+                result.intent.slug === "change-shirt-color" &&
+                result.entities.color) {
+              $.ajax({
+                type : "POST",
+                url : "http://localhost:5000/load_ajax",
+                data: JSON.stringify(result.entities.color[0].rgb, null, '\t'),
+                contentType: 'application/json;charset=UTF-8',
+              });
+            }
           }
         });
       }
