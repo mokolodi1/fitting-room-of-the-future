@@ -36,12 +36,28 @@ function setupRecognition(instance, language) {
             if (result.intent &&
                 result.intent.slug === "change-shirt-color" &&
                 result.entities.color) {
+              console.log("sending down the thing");
+              // $.ajax({
+              //   type : "POST",
+              //   url : "http://localhost:5000/load_ajax",
+              //   data: JSON.stringify(result.entities.color[0].rgb, null, '\t'),
+              //   contentType: 'application/json;charset=UTF-8',
+              // });
               $.ajax({
-                type : "POST",
-                url : "http://localhost:5000/load_ajax",
-                data: JSON.stringify(result.entities.color[0].rgb, null, '\t'),
-                contentType: 'application/json;charset=UTF-8',
-              });
+                type: "POST",
+                headers: {"Content-Type": "application/json"},
+                url: "http://localhost:5000/load_ajax",
+                data: JSON.stringify({"color": result.entities.color[0].rgb}),
+                success: function(response) {
+                  console.log("OK : ");
+                  console.log(response);
+                },
+                error: function(response, error) {
+                    console.log("KO : ");
+                    console.log(response);
+                    console.log(error);
+                }
+            });
             }
           }
         });
