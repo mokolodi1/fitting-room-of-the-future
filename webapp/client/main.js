@@ -1,5 +1,8 @@
 // Template.home
 
+import * as html2canvas from "html2canvas";
+console.log("html2canvas:", html2canvas);
+
 Template.home.onCreated(function () {
   // TODO: do some stuff to connect to the Arduino and then run:
   // FlowRouter.go("productDetail");
@@ -28,6 +31,13 @@ function setupRecognition(instance, language) {
 
           if (result.intent.confidence > .6) {
             instance.recastResult.set(result);
+
+             $.ajax({
+               type : "POST",
+               url : "http://localhost:5000/load_ajax",
+               data: JSON.stringify(data, null, '\t'),
+               contentType: 'application/json;charset=UTF-8',
+             });
           }
         });
       }

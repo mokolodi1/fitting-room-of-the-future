@@ -17,13 +17,21 @@
 </template>
 
 <template name="productDetail">
+  <!-- <div class="bg"></div> -->
+
   <div class="container">
     <div class="row">
       <div class="col-sm-6">
-        <h1>Video from webcam</h1>
+        <img src="http://localhost:5000/video_feed" alt="" style="width: 100%"
+            id="video-feed">
       </div>
       <div class="col-sm-6">
-        <h4>Red tshirt</h4>
+        <h4>
+          Teal t-shirt
+
+          <span class="label label-default">$30</span>
+        </h4>
+
         <hr>
 
         <h4>
@@ -121,6 +129,12 @@
             <p>Hmm, didn't quite catch that...</p>
           {{/if}}
         {{/if}}
+
+        <hr>
+
+        <div id="put-here">
+
+        </div>
       </div>
     </div>
   </div>
