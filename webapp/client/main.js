@@ -26,7 +26,7 @@ function setupRecognition(instance, language) {
             (error, result) => {
           console.log("result:", result);
 
-          if (result.intent.confidence > .8) {
+          if (result.intent.confidence > .6) {
             instance.recastResult.set(result);
           }
         });
