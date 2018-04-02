@@ -1,6 +1,7 @@
 import sys, os.path
 import cv2
 import math
+import time
 import numpy as np
 
 from shirt import Shirt
@@ -28,6 +29,7 @@ class MyEventHandler(PatternMatchingEventHandler):
     def on_modified(self, event):
         super(MyEventHandler, self).on_modified(event)
         print("File %s was just modified" % event.src_path)
+        time.sleep(1)
         with open(event.src_path, 'r') as myfile:
             data=myfile.read().replace('\n', '')
             self.videocam.set_color(data)
@@ -66,6 +68,7 @@ class VideoCamera(object):
         # We are using Motion JPEG, but OpenCV defaults to capture raw images,
         # so we must encode it into JPEG in order to correctly display the
         # video stream.
+        image = cv2.resize(image, (0,0), fx=0.5, fy=0.5)
         (h,w,d) = image.shape
         #9:16
         #16->h
@@ -112,8 +115,17 @@ class VideoCamera(object):
     def set_color(self,color):
         self.colorize = True
         tmp = color[4:-1]
-        rgb = np.array(tmp.split(','))
-        print(rgb)
-        hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
-        self.color = hsv[0]
+        tmp2 = tmp.split(',')
+        rgb = []
+        print(tmp2)
+        rgb.append(int(tmp2[0]))
+        rgb.append(int(tmp2[1]))
+        rgb.append(int(tmp2[2]))
+        print(np.array([255,0,0]))
+        #hsv = cv2.cvtColor(np.array([255,0,0]), cv2.COLOR_RGB2HSV)
+        self.color = 0
         print("color",self.color)
+        file = open("/tmp/over_here_arnaud","w+")
+
+        file.write("Hello World")
+        file.close()

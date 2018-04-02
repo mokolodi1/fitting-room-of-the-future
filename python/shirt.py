@@ -3,11 +3,25 @@ import cv2
 import math
 import random
 
+NB_RND = 35
+LIMIT_DETECTION = 25
+
 def delta_e(c1, c2):
     l = int(c2[0])-int(c1[0])
     a = int(c2[1])-int(c1[1])
     b = int(c2[2])-int(c1[2])
     res = math.sqrt(l*l+a*a+b*b)
+    return res
+
+
+def delta_im(im1, c):
+    im2 = np.ones(im1.shape) * c
+    f1 = im1.astype(float)
+    f2 = im2.astype(float)
+    l = np.subtract(f2[:,:,0], f1[:,:,0])
+    a = np.subtract(f2[:,:,1], f1[:,:,1])
+    b = np.subtract(f2[:,:,2], f1[:,:,2])
+    res = np.sqrt(l*l+a*a+b*b)
     return res
 
 def get_median_color(colors):
@@ -45,13 +59,12 @@ class Shirt(object):
             shirt_y = y + 2 * h
             avg_h = 0
             cpt = 0
-            start_w = math.floor(x - (w/2))
-            end_w = math.floor(x + (3*w/2))
+            start_w = math.floor(x - (w/3))
+            end_w = math.floor(x + w + (w/3))
             start_h = math.floor(shirt_y - (h/4))
-            end_h = math.floor(shirt_y + (3*h/4))
-            nb_rnd = 50
-            randoms = np.random.uniform(low=[start_w,start_h], high=[end_w,end_h],size=(nb_rnd,2))
-            for i in range(nb_rnd):
+            end_h = math.floor(shirt_y + h + (h/4))
+            randoms = np.random.uniform(low=[start_w,start_h], high=[end_w,end_h],size=(NB_RND,2))
+            for i in range(NB_RND):
                 xr = math.floor(randoms[i,0])
                 yr = math.floor(randoms[i,1])
                 cv2.rectangle(img,(xr-2,yr-2),(xr+2,yr+2),(0,255,0),2)
@@ -65,46 +78,26 @@ class Shirt(object):
                 col = get_median_color(tmp_colors)
                 self.colors.append(col)
 
-            cv2.rectangle(img,(start_w,start_h),(end_w,end_h),(255,255,0),2)
 
-            self.colordict = dict()
-            (h,w,d) = lab.shape
-            for y in range(h):
-                for x in range(w):
-                        (l,a,b) = tuple(lab[y,x,:])
-                        for c in self.colors:
-                            deltae = delta_e([l,a,b],c)
-                            if (deltae < 10):
-                                self.colordict[(l,a,b)] = True
-                                break
-                            else:
-                                self.colordict[(l,a,b)] = False
 
     def change_color(self,img,hue):
         lab = cv2.cvtColor(img, cv2.COLOR_BGR2Lab)
         (h,w,d) = lab.shape
         mask = np.zeros((h,w), np.uint8)
-        for y in range(h):
-            for x in range(w):
-                color = tuple(lab[y,x,:])
-                if color in self.colordict:
-                    if (self.colordict[color]):
-                        mask.itemset((y,x),255)
-                else:
-                    for c in self.colors:
-                        deltae = delta_e(lab[y,x,:],c)
-                        if (deltae < 10):
-                            self.colordict[color] = True
-                            break
-                        else:
-                            self.colordict[color] = False
+        print(lab.shape)
+        for c in self.colors:
+            delta = delta_im(lab,c)
+            tmp = np.zeros((h,w), np.uint8)
+            tmp[np.where(delta < [LIMIT_DETECTION])] = 255
+            mask = cv2.bitwise_or(mask,tmp)
+
 
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,10))
         closing = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         h,s,v = cv2.split(hsv)
-        h[np.where(closing == [255])] = hue
+        h[np.where(closing == [255])] = 0
         hsv = cv2.merge((h,s,v))
 
         imgco = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
